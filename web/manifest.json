@@ -1,6 +1,6 @@
 {
-    "name": "sanjid_app",
-    "short_name": "sanjid_app",
+    "name": "Livelife",
+    "short_name": "Livelife",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
