@@ -37,6 +37,7 @@ abstract class HealthRepository {
 
 abstract class PrayerRepository {
   List<PrayerRecord> getPrayerRecords();
+  void updatePrayerRecord(PrayerRecord record);
 }
 
 abstract class NotesRepository {
@@ -268,6 +269,16 @@ class InMemoryLifeRepository
       _habits.add(habit);
     } else {
       _habits[index] = habit;
+    }
+  }
+
+  @override
+  void updatePrayerRecord(PrayerRecord record) {
+    final index = _prayerRecords.indexWhere((item) => item.id == record.id);
+    if (index == -1) {
+      _prayerRecords.add(record);
+    } else {
+      _prayerRecords[index] = record;
     }
   }
 }

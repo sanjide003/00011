@@ -74,4 +74,25 @@ void main() {
     expect(find.text('Categories, budget rules, tax/GST, investments, loans and credit cards are coming soon'), findsOneWidget);
   });
 
+
+  testWidgets('More tab renders prayer progress and practice placeholders', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Prayer'), findsOneWidget);
+    expect(find.text('2 / 5 prayers'), findsOneWidget);
+    expect(find.text('Fajr'), findsOneWidget);
+    expect(find.text('Dhuhr'), findsOneWidget);
+    expect(find.text('Asr'), findsOneWidget);
+    expect(find.text('Maghrib'), findsOneWidget);
+    expect(find.text('Isha'), findsOneWidget);
+    expect(find.text('Prayer calculation settings'), findsOneWidget);
+    expect(find.text('Reminder settings'), findsOneWidget);
+    expect(find.text('Quran tracking'), findsOneWidget);
+    expect(find.text('Dhikr and dua'), findsOneWidget);
+    expect(find.text('Ramadan and charity'), findsOneWidget);
+  });
+
 }

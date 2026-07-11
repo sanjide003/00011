@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/life_repository.dart';
 import '../models/life_models.dart';
 import '../services/finance_calculations.dart';
+import '../services/prayer_calculations.dart';
 import '../widgets/life_widgets.dart';
 
 class LifeOsShell extends StatefulWidget {
@@ -19,6 +20,7 @@ class _LifeOsShellState extends State<LifeOsShell> {
 
   late List<LifeTask> _tasks = widget.repository.getTasks();
   late List<Habit> _habits = widget.repository.getHabits();
+  late List<PrayerRecord> _prayerRecords = widget.repository.getPrayerRecords();
 
   void _selectTab(int index) {
     setState(() => _selectedIndex = index);
@@ -56,6 +58,18 @@ class _LifeOsShellState extends State<LifeOsShell> {
     setState(() => _habits = widget.repository.getHabits());
   }
 
+  void _togglePrayer(PrayerRecord prayer, bool? completed) {
+    widget.repository.updatePrayerRecord(
+      PrayerRecord(
+        id: prayer.id,
+        name: prayer.name,
+        completed: completed ?? false,
+        timeLabel: prayer.timeLabel,
+      ),
+    );
+    setState(() => _prayerRecords = widget.repository.getPrayerRecords());
+  }
+
   void _toggleHabit(Habit habit, bool? completed) {
     final isCompleted = completed ?? false;
     widget.repository.updateHabit(
@@ -76,7 +90,7 @@ class _LifeOsShellState extends State<LifeOsShell> {
         goals: widget.repository.getGoals(),
         financeEntries: widget.repository.getFinanceEntries(),
         healthEntries: widget.repository.getHealthEntries(),
-        prayerRecords: widget.repository.getPrayerRecords(),
+        prayerRecords: _prayerRecords,
         reviews: widget.repository.getDailyReviews(),
         onOpenTab: _selectTab,
       ),
@@ -95,7 +109,8 @@ class _LifeOsShellState extends State<LifeOsShell> {
       FinanceScreen(entries: widget.repository.getFinanceEntries()),
       HealthScreen(entries: widget.repository.getHealthEntries()),
       MoreScreen(
-        prayerRecords: widget.repository.getPrayerRecords(),
+        prayerRecords: _prayerRecords,
+        onTogglePrayer: _togglePrayer,
         notes: widget.repository.getNotes(),
         reviews: widget.repository.getDailyReviews(),
       ),
@@ -432,37 +447,48 @@ class MoreScreen extends StatelessWidget {
   const MoreScreen({
     super.key,
     required this.prayerRecords,
+    required this.onTogglePrayer,
     required this.notes,
     required this.reviews,
   });
 
   final List<PrayerRecord> prayerRecords;
+  final void Function(PrayerRecord prayer, bool? completed) onTogglePrayer;
   final List<LifeNote> notes;
   final List<DailyReview> reviews;
 
   @override
   Widget build(BuildContext context) {
-    final completedPrayers = prayerRecords.where((prayer) => prayer.completed).length;
+    final progress = calculatePrayerProgress(prayerRecords);
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        SectionHeader(title: 'More', action: '$completedPrayers / 5 prayers'),
+        SectionHeader(title: 'Prayer', action: '${progress.label} prayers'),
         const SizedBox(height: 8),
+        LinearProgressIndicator(value: progress.ratio),
+        const SizedBox(height: 12),
+        for (final prayer in prayerRecords)
+          Card(
+            child: CheckboxListTile(
+              value: prayer.completed,
+              onChanged: (value) => onTogglePrayer(prayer, value),
+              title: Text(prayer.name),
+              subtitle: Text(prayer.timeLabel),
+              secondary: const Icon(Icons.mosque),
+            ),
+          ),
+        const SectionHeader(title: 'Prayer tools'),
         const FeatureTile(
           title: 'Prayer calculation settings',
-          description: 'Multiple methods, location, Asr option and manual adjustments',
+          description: 'Multiple methods, automatic/manual location, Asr option, timezone and manual adjustments',
           icon: Icons.settings,
           comingSoon: true,
         ),
-        for (final prayer in prayerRecords)
-          Card(
-            child: ListTile(
-              leading: Icon(prayer.completed ? Icons.check_circle : Icons.radio_button_unchecked),
-              title: Text(prayer.name),
-              subtitle: Text(prayer.timeLabel),
-            ),
-          ),
+        const FeatureTile(title: 'Reminder settings', description: 'Per-prayer reminders and quiet-time controls', icon: Icons.notifications_active, comingSoon: true),
+        const FeatureTile(title: 'Quran tracking', description: 'Pages, verses and sessions', icon: Icons.menu_book, comingSoon: true),
+        const FeatureTile(title: 'Dhikr and dua', description: 'Daily counters and saved duas', icon: Icons.favorite, comingSoon: true),
+        const FeatureTile(title: 'Ramadan and charity', description: 'Fasting, charity and Ramadan goals', icon: Icons.volunteer_activism, comingSoon: true),
         const SizedBox(height: 20),
         const SectionHeader(title: 'Notes and reviews'),
         for (final note in notes) FeatureTile(title: note.title, description: note.body, icon: Icons.edit_note),

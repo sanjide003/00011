@@ -63,6 +63,7 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 2 completed: local-first model and repository interfaces with seeded in-memory data ready for future SQLite/Isar/Hive and Firebase sync adapters.
 - Update 3 completed: Daily Planner, Tasks, Goals, and Habits MVP with create/edit/complete flows where reasonable.
 - Update 4 completed: personal INR finance MVP with Bank/UPI, income, expenses, bills, monthly summary, cash flow, basic reports, and advanced finance marked coming soon.
+- Update 5 completed: prayer module with five daily prayers, completion tracking, progress summary, and placeholders for calculation settings, reminders, Quran, dhikr, dua, Ramadan, and charity.
 - App identity update completed: project/package references standardized to `livelife`, visible app name set to `Livelife`, Android package set to `com.dsd003.life`, and Firebase Android config added.
 
 ## Completed update log
@@ -73,19 +74,10 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 2: local-first models and repository interfaces with seeded in-memory data, prepared for a future SQLite/Isar/Hive storage adapter and Firebase sync adapter.
 - Update 3: Daily Planner, Tasks, Goals, and Habits MVP with create, edit, and complete flows where practical.
 - Update 4: personal INR finance MVP with Bank/UPI account source, income, expenses, pending bills, cash flow, monthly summary, basic reports, and advanced finance marked coming soon.
+- Update 5: Prayer module with five daily prayers, completion tracking, progress summary, and placeholders for calculation settings, reminders, Quran, dhikr, dua, Ramadan, and charity.
 - App identity: renamed app/package references to Livelife/livelife and aligned Android `applicationId` / namespace with Firebase package `com.dsd003.life`.
 
 ## Next implementation roadmap
-
-### Next Update 5: Prayer module
-
-Goal: add five-prayer tracking and Islamic practice placeholders.
-
-Full prompt:
-
-```text
-Build Update 5 for the Flutter Livelife app. Implement the Prayer module with five daily prayers, completion tracking, prayer calculation settings placeholders, reminder settings placeholders, Quran tracking, dhikr, dua, Ramadan, and charity placeholders. Keep all labels English. Add dashboard summaries and tests for prayer progress.
-```
 
 ### Next Update 6: Health dashboard and Health Connect boundary
 
@@ -189,7 +181,7 @@ Build Update 15 for the Flutter Livelife app. Add the final custom logo assets i
 
 ## What is still needed from the owner
 
-No blocking owner decision is needed for the next Prayer module update. Before branding can be completed, the owner should provide:
+No blocking owner decision is needed for the next Health dashboard update. Before branding can be completed, the owner should provide:
 
 - Final logo image files matching the required asset specification.
 - Exact visual logo design approval before launcher icon and splash screen generation.
