@@ -62,6 +62,7 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 1 completed: Android-first Material 3 app shell with bottom navigation and reusable UI components.
 - Update 2 completed: local-first model and repository interfaces with seeded in-memory data ready for future SQLite/Isar/Hive and Firebase sync adapters.
 - Update 3 completed: Daily Planner, Tasks, Goals, and Habits MVP with create/edit/complete flows where reasonable.
+- Update 4 completed: personal INR finance MVP with Bank/UPI, income, expenses, bills, monthly summary, cash flow, basic reports, and advanced finance marked coming soon.
 - App identity update completed: project/package references standardized to `livelife`, visible app name set to `Livelife`, Android package set to `com.dsd003.life`, and Firebase Android config added.
 
 ## Completed update log
@@ -71,19 +72,10 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 1: Android-first Material 3 app shell, bottom navigation, reusable cards, section headers, empty states, and coming-soon badges.
 - Update 2: local-first models and repository interfaces with seeded in-memory data, prepared for a future SQLite/Isar/Hive storage adapter and Firebase sync adapter.
 - Update 3: Daily Planner, Tasks, Goals, and Habits MVP with create, edit, and complete flows where practical.
+- Update 4: personal INR finance MVP with Bank/UPI account source, income, expenses, pending bills, cash flow, monthly summary, basic reports, and advanced finance marked coming soon.
 - App identity: renamed app/package references to Livelife/livelife and aligned Android `applicationId` / namespace with Firebase package `com.dsd003.life`.
 
 ## Next implementation roadmap
-
-### Next Update 4: Personal Finance MVP
-
-Goal: implement usable personal finance tracking in INR with Bank/UPI treated as the same source.
-
-Full prompt:
-
-```text
-Build Update 4 for the Flutter Livelife app. Implement a personal Finance MVP using INR. Treat bank and UPI as the same account source. Add income, expense, bills, monthly summary, cash flow, and basic reports. Mark advanced categories, budget rules, tax/GST, investments, loans, and credit cards as coming soon. Do not add business features. Add tests for finance calculations and UI summaries.
-```
 
 ### Next Update 5: Prayer module
 
@@ -197,7 +189,7 @@ Build Update 15 for the Flutter Livelife app. Add the final custom logo assets i
 
 ## What is still needed from the owner
 
-No blocking owner decision is needed for the next Finance MVP update. Before branding can be completed, the owner should provide:
+No blocking owner decision is needed for the next Prayer module update. Before branding can be completed, the owner should provide:
 
 - Final logo image files matching the required asset specification.
 - Exact visual logo design approval before launcher icon and splash screen generation.

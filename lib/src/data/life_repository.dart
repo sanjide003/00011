@@ -166,6 +166,14 @@ class InMemoryLifeRepository
           accountLabel: 'Bank / UPI',
           date: now,
         ),
+        FinanceEntry(
+          id: 'finance-electricity-bill',
+          title: 'Electricity bill',
+          amountInr: 1240,
+          type: FinanceType.bill,
+          accountLabel: 'Bank / UPI',
+          date: now.add(const Duration(days: 3)),
+        ),
       ],
       healthEntries: [
         HealthEntry(

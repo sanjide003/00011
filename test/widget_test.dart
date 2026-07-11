@@ -57,4 +57,21 @@ void main() {
     expect(find.text('Add Habit'), findsOneWidget);
     expect(find.text('Build a consistent health routine'), findsOneWidget);
   });
+
+  testWidgets('Finance tab renders INR summary and coming soon finance scope', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('Finance'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('INR • Bank / UPI'), findsOneWidget);
+    expect(find.text('Income'), findsOneWidget);
+    expect(find.text('Expense'), findsOneWidget);
+    expect(find.text('Pending Bills'), findsOneWidget);
+    expect(find.text('Cash Flow'), findsOneWidget);
+    expect(find.text('Basic reports'), findsOneWidget);
+    expect(find.text('Advanced finance'), findsOneWidget);
+    expect(find.text('Categories, budget rules, tax/GST, investments, loans and credit cards are coming soon'), findsOneWidget);
+  });
+
 }

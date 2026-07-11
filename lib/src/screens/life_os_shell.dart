@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/life_repository.dart';
 import '../models/life_models.dart';
+import '../services/finance_calculations.dart';
 import '../widgets/life_widgets.dart';
 
 class LifeOsShell extends StatefulWidget {
@@ -352,27 +353,41 @@ class FinanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final income = entries.where((entry) => entry.type == FinanceType.income).fold<double>(0, (sum, entry) => sum + entry.amountInr);
-    final expense = entries.where((entry) => entry.type == FinanceType.expense).fold<double>(0, (sum, entry) => sum + entry.amountInr);
+    final summary = calculateFinanceSummary(entries);
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         const SectionHeader(title: 'Finance', action: 'INR • Bank / UPI'),
         const SizedBox(height: 8),
-        MetricCard(label: 'Monthly Balance', value: '₹${(income - expense).toStringAsFixed(0)}', icon: Icons.currency_rupee, color: const Color(0xFF2563EB)),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          childAspectRatio: 1.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          children: [
+            MetricCard(label: 'Income', value: '₹${summary.incomeInr.toStringAsFixed(0)}', icon: Icons.south_west, color: const Color(0xFF16A34A)),
+            MetricCard(label: 'Expense', value: '₹${summary.expenseInr.toStringAsFixed(0)}', icon: Icons.north_east, color: const Color(0xFFDC2626)),
+            MetricCard(label: 'Pending Bills', value: '₹${summary.pendingBillsInr.toStringAsFixed(0)}', icon: Icons.receipt_long, color: const Color(0xFFF97316)),
+            MetricCard(label: 'Cash Flow', value: '₹${summary.cashFlowInr.toStringAsFixed(0)}', icon: Icons.account_balance_wallet, color: const Color(0xFF2563EB)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Basic reports', action: 'This month'),
         for (final entry in entries)
           Card(
             child: ListTile(
-              leading: Icon(entry.type == FinanceType.income ? Icons.south_west : Icons.north_east),
+              leading: Icon(_financeIcon(entry.type)),
               title: Text(entry.title),
-              subtitle: Text(entry.accountLabel),
+              subtitle: Text('${financeTypeLabel(entry.type)} • ${entry.accountLabel}'),
               trailing: Text('₹${entry.amountInr.toStringAsFixed(0)}'),
             ),
           ),
         const FeatureTile(
           title: 'Advanced finance',
-          description: 'Budgets, tax/GST, cards, loans and investments are planned later',
+          description: 'Categories, budget rules, tax/GST, investments, loans and credit cards are coming soon',
           icon: Icons.trending_up,
           comingSoon: true,
         ),
@@ -619,6 +634,18 @@ String _taskAreaLabel(TaskArea area) {
       return 'Evening Review';
     case TaskArea.tomorrow:
       return 'Tomorrow Planning';
+  }
+}
+
+
+IconData _financeIcon(FinanceType type) {
+  switch (type) {
+    case FinanceType.income:
+      return Icons.south_west;
+    case FinanceType.expense:
+      return Icons.north_east;
+    case FinanceType.bill:
+      return Icons.receipt_long;
   }
 }
 
