@@ -130,4 +130,18 @@ void main() {
     expect(find.text('No online AI'), findsOneWidget);
   });
 
+
+  testWidgets('More tab shows optional Google login and local-first sync status', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Backup and privacy'), findsOneWidget);
+    expect(find.text('Signed out • Local-first mode'), findsOneWidget);
+    expect(find.text('Optional Google Login'), findsOneWidget);
+    expect(find.text('Firebase backup opt-in'), findsOneWidget);
+    expect(find.text('Local-only backup is active'), findsOneWidget);
+  });
+
 }

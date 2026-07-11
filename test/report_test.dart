@@ -4,7 +4,7 @@ import 'package:livelife/src/services/life_reports.dart';
 
 void main() {
   test('daily closing report uses local data and offline suggestions', () {
-    final repository = InMemoryLifeRepository.seeded();
+    final repository = LocalLifeRepository.seeded();
     final report = buildDailyClosingReport(
       tasks: repository.getTasks(),
       habits: repository.getHabits(),
@@ -21,7 +21,7 @@ void main() {
   });
 
   test('weekly and monthly reviews are generated without online AI', () {
-    final repository = InMemoryLifeRepository.seeded();
+    final repository = LocalLifeRepository.seeded();
 
     final weekly = buildWeeklyReview(
       tasks: repository.getTasks(),

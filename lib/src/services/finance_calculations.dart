@@ -28,7 +28,9 @@ FinanceSummary calculateFinanceSummary(List<FinanceEntry> entries) {
         expense += entry.amountInr;
         break;
       case FinanceType.bill:
-        pendingBills += entry.amountInr;
+        if (!entry.paid) {
+          pendingBills += entry.amountInr;
+        }
         break;
     }
   }

@@ -30,7 +30,7 @@ class LifeOsApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      home: LifeOsShell(repository: InMemoryLifeRepository.seeded()),
+      home: LifeOsShell(repository: LocalLifeRepository.seeded()),
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:livelife/src/services/prayer_calculations.dart';
 
 void main() {
   test('calculates five-prayer progress from seeded records', () {
-    final progress = calculatePrayerProgress(InMemoryLifeRepository.seeded().getPrayerRecords());
+    final progress = calculatePrayerProgress(LocalLifeRepository.seeded().getPrayerRecords());
 
     expect(progress.total, 5);
     expect(progress.completed, 2);
@@ -14,8 +14,8 @@ void main() {
   });
 
   test('updates prayer completion through repository', () {
-    final repository = InMemoryLifeRepository.seeded();
-    const updatedAsr = PrayerRecord(
+    final repository = LocalLifeRepository.seeded();
+    final updatedAsr = PrayerRecord(
       id: 'asr',
       name: 'Asr',
       completed: true,

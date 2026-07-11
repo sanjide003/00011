@@ -4,7 +4,7 @@ import 'package:livelife/src/services/health_calculations.dart';
 
 void main() {
   test('summarizes primary health metrics from seeded entries', () {
-    final summary = calculateHealthSummary(InMemoryLifeRepository.seeded().getHealthEntries());
+    final summary = calculateHealthSummary(LocalLifeRepository.seeded().getHealthEntries());
 
     expect(summary.steps, 6400);
     expect(summary.sleepHours, 6.5);

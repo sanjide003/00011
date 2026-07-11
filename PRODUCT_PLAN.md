@@ -66,6 +66,10 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 5 completed: prayer module with five daily prayers, completion tracking, progress summary, and placeholders for calculation settings, reminders, Quran, dhikr, dua, Ramadan, and charity.
 - Update 6 completed: health dashboard with priority manual metrics and a permission-first Health Connect / Google Fit boundary.
 - Update 7 completed: daily, weekly, and monthly reports with offline rule-based local suggestions.
+- Update 8 completed: local persistence boundary with schema-versioned serialization, metadata timestamps, and repository re-creation tests.
+- Update 9 completed: Firebase-ready optional Google login state and signed-out local-first UI; no forced login.
+- Update 10 completed: Firebase sync adapter boundary with sync status, queued-write status, conflict strategy, export/import and privacy controls.
+- Update 11 completed: CRUD actions for enabled modules including finance, health, goals, notes, and daily reviews while advanced/sensitive modules remain disabled.
 - App identity update completed: project/package references standardized to `livelife`, visible app name set to `Livelife`, Android package set to `com.dsd003.life`, and Firebase Android config added.
 
 ## Completed update log
@@ -79,49 +83,13 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 5: Prayer module with five daily prayers, completion tracking, progress summary, and placeholders for calculation settings, reminders, Quran, dhikr, dua, Ramadan, and charity.
 - Update 6: Health dashboard with priority manual metrics and a permission-first Health Connect / Google Fit boundary.
 - Update 7: daily closing reports, weekly reviews, monthly reviews, and offline rule-based local suggestions.
+- Update 8: schema-versioned local repository persistence boundary with JSON serialization and timestamps for all enabled model families.
+- Update 9: Firebase Android/auth foundation UI with optional Google login state and signed-out local-first default.
+- Update 10: sync adapter boundary with local-source-of-truth copy, queued status, conflict strategy, export/import hooks, and privacy controls.
+- Update 11: expanded CRUD actions for finance, health, goals, notes, and daily reviews; Business and sensitive modules remain out of the enabled first version.
 - App identity: renamed app/package references to Livelife/livelife and aligned Android `applicationId` / namespace with Firebase package `com.dsd003.life`.
 
 ## Next implementation roadmap
-
-### Next Update 8: Real local persistence
-
-Goal: replace seeded in-memory data with a real offline-first local database.
-
-Full prompt:
-
-```text
-Build Update 8 for the Flutter Livelife app. Replace the seeded in-memory repository with a real offline-first local persistence layer while keeping the existing repository interfaces stable. The owner has no local database preference, so choose the best fit for this Flutter app, with Isar or Hive as primary candidates. Persist tasks, habits, goals, finance entries in INR, health entries, prayer records, notes, and daily reviews. Add IDs, createdAt/updatedAt fields where needed, serialization, and a basic migration/version strategy. Keep all labels English only and keep Business, password vault, ID documents, SMS parsing, tax/GST, and location history out of the enabled first version. Update tests to prove data can be created, updated, read back, and survive repository re-creation.
-```
-
-### Next Update 9: Firebase Android setup and optional Google login
-
-Goal: initialize Firebase for Android package `com.dsd003.life` while keeping login optional and local-first usage default.
-
-Full prompt:
-
-```text
-Build Update 9 for the Flutter Livelife app. Integrate Firebase for the Android-first Flutter app using the committed android/app/google-services.json file for project financial-b456b and Android package com.dsd003.life. Keep the app local-first and do not force login. Add Firebase core initialization, Android Gradle configuration, and optional Google login UI/state. Add signed-out default behavior, sign-in available state, Firebase initialization guards, and tests/mocks for signed-out and optional sign-in states. Do not implement cloud data sync yet; only prepare Firebase initialization and optional auth foundation.
-```
-
-### Next Update 10: Firebase backup and sync adapter
-
-Goal: sync local data to Firebase only after local persistence and Firebase initialization are stable.
-
-Full prompt:
-
-```text
-Build Update 10 for the Flutter Livelife app. Add a Firebase backup and sync adapter behind the existing repository interfaces. Keep the local database as the source of truth and sync automatically only when Firebase is configured and the user opts into backup/sign-in. Implement a sync queue for offline writes, last-sync status, retry handling, conflict detection, and a simple conflict review UI. Add export/import hooks and privacy controls to enable or disable sync. Add tests for local-only mode, queued sync, successful sync, failed sync retry, and conflict detection.
-```
-
-### Next Update 11: Full CRUD completion
-
-Goal: make all current MVP modules editable, not just visible.
-
-Full prompt:
-
-```text
-Build Update 11 for the Flutter Livelife app. Complete CRUD flows for the current enabled modules. Add create, edit, and delete for finance income, expenses, and bills; health manual entries for priority metrics; goals and milestones; notes; and daily reviews. Add editable prayer settings placeholders stored locally. Improve form validation, empty states, and tests for each CRUD flow. Keep advanced modules disabled and do not add Business, password vault, ID documents, SMS parsing, tax/GST, or location history as enabled features.
-```
 
 ### Next Update 12: Notifications and reminders
 

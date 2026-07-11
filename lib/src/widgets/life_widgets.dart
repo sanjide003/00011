@@ -69,6 +69,7 @@ class FeatureTile extends StatelessWidget {
     required this.icon,
     this.comingSoon = false,
     this.onTap,
+    this.action,
   });
 
   final String title;
@@ -76,6 +77,7 @@ class FeatureTile extends StatelessWidget {
   final IconData icon;
   final bool comingSoon;
   final VoidCallback? onTap;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +87,7 @@ class FeatureTile extends StatelessWidget {
         leading: CircleAvatar(child: Icon(icon)),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text(description),
-        trailing: comingSoon ? const Chip(label: Text('Soon')) : const Icon(Icons.chevron_right),
+        trailing: action ?? (comingSoon ? const Chip(label: Text('Soon')) : const Icon(Icons.chevron_right)),
       ),
     );
   }
