@@ -11,6 +11,7 @@ void main() {
     expect(find.text('Locked product direction'), findsOneWidget);
     expect(find.text('English only'), findsOneWidget);
     expect(find.text('Android first'), findsOneWidget);
+    expect(find.text('Offline-first + Firebase sync'), findsOneWidget);
     expect(find.text('Life modules'), findsOneWidget);
     expect(find.text('Coming soon'), findsOneWidget);
     expect(find.text('Update roadmap'), findsOneWidget);

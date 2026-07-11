@@ -47,22 +47,23 @@ class LifeOsHomePage extends StatelessWidget {
   ];
 
   static const List<_FeatureArea> _comingSoonAreas = [
-    _FeatureArea('Google Login', 'Optional when cloud sync starts', Icons.login),
+    _FeatureArea('Google Login', 'Optional when Firebase sync starts', Icons.login),
     _FeatureArea('Advanced Finance', 'Budgets, tax/GST, cards, loans and investments', Icons.trending_up),
     _FeatureArea('Documents Vault', 'IDs and private documents after secure storage', Icons.lock),
     _FeatureArea('Phone Analysis', 'SMS parsing and location history only after explicit opt-in', Icons.privacy_tip),
     _FeatureArea('Online AI', 'OpenAI or configurable provider in a later update', Icons.cloud),
+    _FeatureArea('Sensitive Tracking', 'Password vault, SMS and location after security review', Icons.security),
   ];
 
   static const List<String> _implementationPhases = [
     'Update 1: Android-first app shell, navigation and reusable UI.',
-    'Update 2: Local-first models and repositories, ready for cloud sync.',
+    'Update 2: Offline-first models and repositories, ready for Firebase sync.',
     'Update 3: Planner, tasks, goals and habits MVP.',
     'Update 4: INR finance MVP for bank/UPI, bills and reports.',
     'Update 5: Prayer module with Quran, reminders, Ramadan and charity.',
-    'Update 6: Health Connect / Google Fit preparation and manual health logs.',
+    'Update 6: Health Connect / Google Fit with priority health metrics.',
     'Update 7: Daily, weekly and monthly reviews with offline summaries.',
-    'Update 8: Optional Google login, cloud backup, export and import.',
+    'Update 8: Optional Google login, Firebase backup, export and import.',
     'Update 9: Secure future modules and online AI feature flags.',
   ];
 
@@ -151,7 +152,7 @@ class _HeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Android-first personal command center for time, habits, money, health, prayer, learning and offline summaries.',
+              'Android-first, offline-first command center with Firebase sync, Health Connect, prayer tracking and offline summaries.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 16),
@@ -175,10 +176,10 @@ class _ProductDecisionCard extends StatelessWidget {
     const decisions = [
       'English only',
       'Android first',
-      'Local + cloud storage',
-      'No login first; Google login optional later',
+      'Offline-first + Firebase sync',
+      'No login first; Google login optional',
       'Offline summaries first',
-      'Sensitive modules deferred',
+      'Custom logo assets required',
     ];
 
     return Card(

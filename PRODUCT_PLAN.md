@@ -8,15 +8,50 @@ This repository is a Flutter mobile application. It now has a Life OS visual pro
 
 - Product language: English only.
 - Platform priority: Android first.
-- Authentication: no login required for the first release; optional Google login can be added when cloud sync starts.
-- Storage: local plus cloud sync is required.
+- Authentication: no login required for the first release; optional Google login can be added when Firebase sync starts.
+- Storage: offline-first local storage plus automatic Firebase sync is required.
 - First-version sensitive scope: do not include password vault, ID documents, SMS parsing, or location history.
 - Finance: Indian Rupee currency, bank/UPI treated as the same account source, basic reports required, advanced categories/budget rules/tax/GST marked as coming soon.
-- Health: manual entry plus Health Connect / Google Fit integration is required.
-- Prayer: include prayer calculation settings, reminders, Quran tracking, Ramadan tracking, and charity tracking.
+- Health: manual entry plus Health Connect / Google Fit integration is required, with first-version priority on steps, sleep duration, water intake, weight, exercise/workout, mood, and medicine tracking.
+- Prayer: support multiple calculation methods with automatic location, manual location, manual time adjustment, Hanafi/Shafi'i Asr options, timezone/daylight handling, and settings-based changes.
 - Business: remove business-management features from the first personal version.
 - AI: offline summaries first; OpenAI-powered or configurable AI providers can be added later.
 - Design: modern Android-first Material 3 style, blue/indigo primary color, clean cards, dark-mode support later, dashboard priority set by daily use value.
+- Logo: custom logo package required before final app branding; no text inside the icon.
+- Backend: Firebase is the final backend for auth, database, file storage, synchronization, notifications, user management, and security rules.
+
+## Final architecture decisions
+
+### Logo assets
+
+Create and place these files in the project assets folder before final branding is wired into launch icons and splash screens:
+
+- `app_logo.svg` — master vector logo.
+- `app_logo_1024.png` — 1024 x 1024 master PNG.
+- `app_logo_512.png` — 512 x 512 PNG.
+- `app_logo_192.png` — 192 x 192 PNG.
+- `app_logo_180.png` — 180 x 180 PNG.
+- `app_logo_96.png` — 96 x 96 PNG.
+- `app_logo_72.png` — 72 x 72 PNG.
+- `app_logo_48.png` — 48 x 48 PNG.
+- `favicon.ico`, `favicon-32.png`, and `favicon-16.png`.
+- `splash_logo.png` — 1024 x 1024 transparent PNG.
+- `adaptive_foreground.png` — 1024 x 1024 transparent PNG.
+- `adaptive_background.png` — 1024 x 1024 solid-background PNG.
+
+Logo guidelines: modern, minimal, rounded, flat, high contrast, recognizable at small sizes, compatible with light and dark mode, and no text inside the icon.
+
+### Firebase backend
+
+Firebase is the final cloud provider and backend. It will be used for optional Google authentication, cloud database, cloud storage, backup and sync, push notifications, user management, security rules, optional analytics, and optional crash reporting. The app must remain offline-first: data is written locally first and synchronized automatically when internet access is available.
+
+### Prayer calculation
+
+The prayer system must not hardcode one method. It should support multiple calculation methods, automatic location-based calculation, manual location selection, manual prayer time adjustment, Hanafi/Shafi'i Asr options, automatic daylight/time-zone handling, and user-controlled method changes from Settings.
+
+### Health metric priority
+
+Primary first-version metrics are steps, sleep duration, water intake, weight, exercise/workout, mood, and medicine tracking. Secondary metrics are heart rate, blood pressure, blood sugar, calories burned, distance walked, active minutes, and BMI.
 
 ## Product direction
 
@@ -49,12 +84,12 @@ Deliverables:
 
 - Data models for tasks, habits, goals, finance entries, health entries, prayer records, notes, and reviews.
 - Local repository interfaces and in-memory seed data for tests.
-- Later-ready abstraction for SQLite/Isar/Hive without locking the UI to one storage engine.
+- Later-ready abstraction for SQLite/Isar/Hive plus a Firebase sync adapter without locking the UI to one storage engine.
 
 Next prompt:
 
 ```text
-Build Update 2 for the Flutter Life OS app. Add a local-first data layer with models and repository interfaces for tasks, habits, goals, finance entries in INR, health entries, prayer records, notes, and daily reviews. Use seed/in-memory repositories for now so the UI can read and write sample data without a backend. Keep the architecture ready for SQLite/Isar/Hive and future cloud sync. Add unit tests for the models and repositories.
+Build Update 2 for the Flutter Life OS app. Add a local-first data layer with models and repository interfaces for tasks, habits, goals, finance entries in INR, health entries, prayer records, notes, and daily reviews. Use seed/in-memory repositories for now so the UI can read and write sample data without a backend. Keep the architecture ready for SQLite/Isar/Hive plus a Firebase sync adapter and future cloud sync. Add unit tests for the models and repositories.
 ```
 
 ### Update 3: Daily planner, tasks, goals, and habits MVP
@@ -115,7 +150,8 @@ Goal: prepare Android health tracking with privacy-first permissions.
 
 Deliverables:
 
-- Health dashboard for steps, sleep, water, weight, BMI, heart rate, calories, mood, medicine, blood pressure, and sugar.
+- Health dashboard focused first on steps, sleep duration, water intake, weight, exercise/workout, mood, and medicine tracking.
+- Secondary health metric placeholders for heart rate, blood pressure, blood sugar, calories burned, distance walked, active minutes, and BMI.
 - Manual entry for fields that cannot be synced.
 - Health Connect / Google Fit integration boundary with permission explanation screens.
 - No background tracking without explicit permission.
@@ -123,7 +159,7 @@ Deliverables:
 Next prompt:
 
 ```text
-Build Update 6 for the Flutter Life OS app. Implement the Health dashboard with manual entries and an integration boundary for Android Health Connect / Google Fit. Include steps, sleep, water, weight, BMI, heart rate, calories, mood, medicine, blood pressure, and sugar. Add permission explanation screens and do not track anything without explicit user consent. Add tests for health summaries and permission-state UI.
+Build Update 6 for the Flutter Life OS app. Implement the Health dashboard with manual entries and an integration boundary for Android Health Connect / Google Fit. Prioritize steps, sleep duration, water intake, weight, exercise/workout, mood, and medicine tracking. Add secondary placeholders for heart rate, blood pressure, blood sugar, calories burned, distance walked, active minutes, and BMI. Add permission explanation screens and do not track anything without explicit user consent. Add tests for health summaries and permission-state UI.
 ```
 
 ### Update 7: Reviews, reports, and offline summaries
@@ -151,7 +187,7 @@ Goal: add backup after local features are stable.
 Deliverables:
 
 - Optional Google login.
-- Cloud backup/sync design.
+- Firebase backup/sync design.
 - Conflict handling strategy.
 - Export/import.
 - Privacy settings.
@@ -159,7 +195,7 @@ Deliverables:
 Next prompt:
 
 ```text
-Build Update 8 for the Flutter Life OS app. Add optional Google login and a cloud-sync-ready architecture for backup across devices. Keep local-first behavior as the default. Add export/import, sync status UI, basic conflict handling strategy, and privacy settings. Do not force login. Add tests for signed-out and signed-in states.
+Build Update 8 for the Flutter Life OS app. Add optional Google login and a Firebase-sync-ready architecture for backup across devices. Keep local-first behavior as the default. Add export/import, sync status UI, basic conflict handling strategy, and privacy settings. Do not force login. Add tests for signed-out and signed-in states.
 ```
 
 ### Update 9: Future sensitive and AI modules
@@ -184,8 +220,6 @@ Build Update 9 for the Flutter Life OS app. Prepare future advanced modules behi
 
 No blocking decision is needed before Update 1. Before implementation reaches later phases, the owner should provide:
 
-- App logo preference or permission to generate a simple Life OS logo.
-- Google account/cloud provider preference when Update 8 starts.
-- Prayer calculation preference when Update 5 starts.
-- Exact health metrics to prioritize when Update 6 starts.
-- Whether cloud sync should use Firebase, Supabase, or a custom backend.
+- Final logo image files matching the required asset specification.
+- Firebase project credentials and package configuration when Firebase integration starts.
+- Exact visual logo design approval before launcher icon and splash screen generation.
