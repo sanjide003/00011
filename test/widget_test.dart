@@ -1,30 +1,133 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:sanjid_app/main.dart';
+import 'package:livelife/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Life OS shell renders dashboard and bottom navigation', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Livelife'), findsOneWidget);
+    expect(find.text('Personal Life Operating System'), findsOneWidget);
+    expect(find.text('Locked product direction'), findsOneWidget);
+    expect(find.text('Offline-first + Firebase sync'), findsOneWidget);
+    expect(find.text('Dashboard'), findsOneWidget);
+    expect(find.text('Planner'), findsOneWidget);
+    expect(find.text('Habits'), findsOneWidget);
+    expect(find.text('Finance'), findsOneWidget);
+    expect(find.text('Health'), findsOneWidget);
+    expect(find.text('More'), findsOneWidget);
   });
+
+  testWidgets('Planner supports adding and completing a task', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('Planner'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Daily Planner'), findsOneWidget);
+
+    await tester.tap(find.text('Add Task'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Call doctor');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Call doctor'), findsOneWidget);
+
+    final taskTile = find.ancestor(
+      of: find.text('Call doctor'),
+      matching: find.byType(CheckboxListTile),
+    );
+    await tester.tap(taskTile);
+    await tester.pumpAndSettle();
+
+    final checkbox = tester.widget<CheckboxListTile>(taskTile);
+    expect(checkbox.value, isTrue);
+  });
+
+  testWidgets('Habits tab renders goals and habit controls', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('Habits'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Habits'), findsWidgets);
+    expect(find.text('Goals'), findsOneWidget);
+    expect(find.text('Add Habit'), findsOneWidget);
+    expect(find.text('Build a consistent health routine'), findsOneWidget);
+  });
+
+  testWidgets('Finance tab renders INR summary and coming soon finance scope', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('Finance'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('INR • Bank / UPI'), findsOneWidget);
+    expect(find.text('Income'), findsOneWidget);
+    expect(find.text('Expense'), findsOneWidget);
+    expect(find.text('Pending Bills'), findsOneWidget);
+    expect(find.text('Cash Flow'), findsOneWidget);
+    expect(find.text('Basic reports'), findsOneWidget);
+    expect(find.text('Advanced finance'), findsOneWidget);
+    expect(find.text('Categories, budget rules, tax/GST, investments, loans and credit cards are coming soon'), findsOneWidget);
+  });
+
+
+  testWidgets('More tab renders prayer progress and practice placeholders', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Prayer'), findsOneWidget);
+    expect(find.text('2 / 5 prayers'), findsOneWidget);
+    expect(find.text('Fajr'), findsOneWidget);
+    expect(find.text('Dhuhr'), findsOneWidget);
+    expect(find.text('Asr'), findsOneWidget);
+    expect(find.text('Maghrib'), findsOneWidget);
+    expect(find.text('Isha'), findsOneWidget);
+    expect(find.text('Prayer calculation settings'), findsOneWidget);
+    expect(find.text('Reminder settings'), findsOneWidget);
+    expect(find.text('Quran tracking'), findsOneWidget);
+    expect(find.text('Dhikr and dua'), findsOneWidget);
+    expect(find.text('Ramadan and charity'), findsOneWidget);
+  });
+
+
+  testWidgets('Health tab renders permission boundary and priority metrics', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('Health'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Manual + Health Connect'), findsOneWidget);
+    expect(find.text('Permission required before sync'), findsOneWidget);
+    expect(find.text('No background tracking starts until you explicitly connect Android Health Connect / Google Fit'), findsOneWidget);
+    expect(find.text('Steps'), findsWidgets);
+    expect(find.text('Sleep'), findsOneWidget);
+    expect(find.text('Water'), findsOneWidget);
+    expect(find.text('Exercise'), findsOneWidget);
+    expect(find.text('Primary manual logs'), findsOneWidget);
+    expect(find.text('Medicine Tracking'), findsOneWidget);
+    expect(find.text('Secondary metrics'), findsOneWidget);
+    expect(find.text('Heart Rate'), findsOneWidget);
+    expect(find.text('Blood Pressure'), findsOneWidget);
+    expect(find.text('Blood Sugar'), findsOneWidget);
+    expect(find.text('Calories, distance, active minutes and BMI'), findsOneWidget);
+  });
+
+
+  testWidgets('Dashboard renders offline reports and local suggestions', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    expect(find.text('Offline reports'), findsOneWidget);
+    expect(find.text('Daily closing report'), findsOneWidget);
+    expect(find.text('Weekly review'), findsOneWidget);
+    expect(find.text('Monthly review'), findsOneWidget);
+    expect(find.text('Local suggestions'), findsOneWidget);
+    expect(find.text('No online AI'), findsOneWidget);
+  });
+
 }
