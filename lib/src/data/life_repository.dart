@@ -29,14 +29,17 @@ abstract class GoalRepository {
 
 abstract class FinanceRepository {
   List<FinanceEntry> getFinanceEntries();
+  void addFinanceEntry(FinanceEntry entry);
 }
 
 abstract class HealthRepository {
   List<HealthEntry> getHealthEntries();
+  void addHealthEntry(HealthEntry entry);
 }
 
 abstract class PrayerRepository {
   List<PrayerRecord> getPrayerRecords();
+  void updatePrayerRecord(PrayerRecord record);
 }
 
 abstract class NotesRepository {
@@ -166,6 +169,14 @@ class InMemoryLifeRepository
           accountLabel: 'Bank / UPI',
           date: now,
         ),
+        FinanceEntry(
+          id: 'finance-electricity-bill',
+          title: 'Electricity bill',
+          amountInr: 1240,
+          type: FinanceType.bill,
+          accountLabel: 'Bank / UPI',
+          date: now.add(const Duration(days: 3)),
+        ),
       ],
       healthEntries: [
         HealthEntry(
@@ -180,6 +191,41 @@ class InMemoryLifeRepository
           type: HealthMetricType.water,
           value: 1.8,
           unit: 'L',
+          recordedAt: now,
+        ),
+        HealthEntry(
+          id: 'health-sleep',
+          type: HealthMetricType.sleep,
+          value: 6.5,
+          unit: 'h',
+          recordedAt: now,
+        ),
+        HealthEntry(
+          id: 'health-weight',
+          type: HealthMetricType.weight,
+          value: 72,
+          unit: 'kg',
+          recordedAt: now,
+        ),
+        HealthEntry(
+          id: 'health-exercise',
+          type: HealthMetricType.exercise,
+          value: 35,
+          unit: 'min',
+          recordedAt: now,
+        ),
+        HealthEntry(
+          id: 'health-mood',
+          type: HealthMetricType.mood,
+          value: 4,
+          unit: '/5',
+          recordedAt: now,
+        ),
+        HealthEntry(
+          id: 'health-medicine',
+          type: HealthMetricType.medicine,
+          value: 1,
+          unit: 'taken',
           recordedAt: now,
         ),
       ],
@@ -260,6 +306,22 @@ class InMemoryLifeRepository
       _habits.add(habit);
     } else {
       _habits[index] = habit;
+    }
+  }
+
+  @override
+  void addFinanceEntry(FinanceEntry entry) => _financeEntries.add(entry);
+
+  @override
+  void addHealthEntry(HealthEntry entry) => _healthEntries.add(entry);
+
+  @override
+  void updatePrayerRecord(PrayerRecord record) {
+    final index = _prayerRecords.indexWhere((item) => item.id == record.id);
+    if (index == -1) {
+      _prayerRecords.add(record);
+    } else {
+      _prayerRecords[index] = record;
     }
   }
 }

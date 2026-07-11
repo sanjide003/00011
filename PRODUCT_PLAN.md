@@ -62,6 +62,9 @@ The target product is a personal Life Operating System: a private Android-first 
 - Update 1 completed: Android-first Material 3 app shell with bottom navigation and reusable UI components.
 - Update 2 completed: local-first model and repository interfaces with seeded in-memory data ready for future SQLite/Isar/Hive and Firebase sync adapters.
 - Update 3 completed: Daily Planner, Tasks, Goals, and Habits MVP with create/edit/complete flows where reasonable.
+- Update 4 completed: personal INR finance MVP with bank/UPI, bills, cash flow, monthly summary, and basic reports.
+- Update 5 completed: prayer module with five prayers, completion tracking, progress summary, and placeholders for settings, Quran, dhikr, dua, Ramadan, and charity.
+- Update 6 completed: health dashboard with priority manual metrics and a permission-first Health Connect / Google Fit boundary.
 
 ## Recommended update roadmap
 

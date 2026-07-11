@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/life_repository.dart';
 import '../models/life_models.dart';
+import '../services/life_calculations.dart';
 import '../widgets/life_widgets.dart';
 
 class LifeOsShell extends StatefulWidget {
@@ -18,6 +19,7 @@ class _LifeOsShellState extends State<LifeOsShell> {
 
   late List<LifeTask> _tasks = widget.repository.getTasks();
   late List<Habit> _habits = widget.repository.getHabits();
+  late List<PrayerRecord> _prayerRecords = widget.repository.getPrayerRecords();
 
   void _selectTab(int index) {
     setState(() => _selectedIndex = index);
@@ -55,6 +57,18 @@ class _LifeOsShellState extends State<LifeOsShell> {
     setState(() => _habits = widget.repository.getHabits());
   }
 
+  void _togglePrayer(PrayerRecord prayer, bool? completed) {
+    widget.repository.updatePrayerRecord(
+      PrayerRecord(
+        id: prayer.id,
+        name: prayer.name,
+        completed: completed ?? false,
+        timeLabel: prayer.timeLabel,
+      ),
+    );
+    setState(() => _prayerRecords = widget.repository.getPrayerRecords());
+  }
+
   void _toggleHabit(Habit habit, bool? completed) {
     final isCompleted = completed ?? false;
     widget.repository.updateHabit(
@@ -75,7 +89,7 @@ class _LifeOsShellState extends State<LifeOsShell> {
         goals: widget.repository.getGoals(),
         financeEntries: widget.repository.getFinanceEntries(),
         healthEntries: widget.repository.getHealthEntries(),
-        prayerRecords: widget.repository.getPrayerRecords(),
+        prayerRecords: _prayerRecords,
         reviews: widget.repository.getDailyReviews(),
         onOpenTab: _selectTab,
       ),
@@ -94,7 +108,8 @@ class _LifeOsShellState extends State<LifeOsShell> {
       FinanceScreen(entries: widget.repository.getFinanceEntries()),
       HealthScreen(entries: widget.repository.getHealthEntries()),
       MoreScreen(
-        prayerRecords: widget.repository.getPrayerRecords(),
+        prayerRecords: _prayerRecords,
+        onTogglePrayer: _togglePrayer,
         notes: widget.repository.getNotes(),
         reviews: widget.repository.getDailyReviews(),
       ),
@@ -352,27 +367,41 @@ class FinanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final income = entries.where((entry) => entry.type == FinanceType.income).fold<double>(0, (sum, entry) => sum + entry.amountInr);
-    final expense = entries.where((entry) => entry.type == FinanceType.expense).fold<double>(0, (sum, entry) => sum + entry.amountInr);
+    final summary = calculateFinanceSummary(entries);
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         const SectionHeader(title: 'Finance', action: 'INR • Bank / UPI'),
         const SizedBox(height: 8),
-        MetricCard(label: 'Monthly Balance', value: '₹${(income - expense).toStringAsFixed(0)}', icon: Icons.currency_rupee, color: const Color(0xFF2563EB)),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          childAspectRatio: 1.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          children: [
+            MetricCard(label: 'Income', value: '₹${summary.incomeInr.toStringAsFixed(0)}', icon: Icons.south_west, color: const Color(0xFF16A34A)),
+            MetricCard(label: 'Expense', value: '₹${summary.expenseInr.toStringAsFixed(0)}', icon: Icons.north_east, color: const Color(0xFFDC2626)),
+            MetricCard(label: 'Pending Bills', value: '₹${summary.pendingBillsInr.toStringAsFixed(0)}', icon: Icons.receipt_long, color: const Color(0xFFF97316)),
+            MetricCard(label: 'Cash Flow', value: '₹${summary.cashFlowInr.toStringAsFixed(0)}', icon: Icons.account_balance_wallet, color: const Color(0xFF2563EB)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Basic reports', action: 'This month'),
         for (final entry in entries)
           Card(
             child: ListTile(
-              leading: Icon(entry.type == FinanceType.income ? Icons.south_west : Icons.north_east),
+              leading: Icon(_financeIcon(entry.type)),
               title: Text(entry.title),
-              subtitle: Text(entry.accountLabel),
+              subtitle: Text('${_financeTypeLabel(entry.type)} • ${entry.accountLabel}'),
               trailing: Text('₹${entry.amountInr.toStringAsFixed(0)}'),
             ),
           ),
         const FeatureTile(
           title: 'Advanced finance',
-          description: 'Budgets, tax/GST, cards, loans and investments are planned later',
+          description: 'Categories, budget rules, tax/GST, investments, loans and credit cards are coming soon',
           icon: Icons.trending_up,
           comingSoon: true,
         ),
@@ -388,26 +417,48 @@ class HealthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final summary = calculateHealthSummary(entries);
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const SectionHeader(title: 'Health', action: 'Health Connect ready'),
+        const SectionHeader(title: 'Health', action: 'Manual + Health Connect'),
         const SizedBox(height: 8),
         const FeatureTile(
-          title: 'Android Health Connect / Google Fit',
-          description: 'Permission-first integration boundary for steps, sleep, workouts and more',
-          icon: Icons.health_and_safety,
-          comingSoon: true,
+          title: 'Permission required before sync',
+          description: 'No background tracking starts until you explicitly connect Android Health Connect / Google Fit',
+          icon: Icons.privacy_tip,
         ),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          childAspectRatio: 1.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          children: [
+            MetricCard(label: 'Steps', value: summary.steps.toStringAsFixed(0), icon: Icons.directions_walk, color: const Color(0xFF2563EB)),
+            MetricCard(label: 'Sleep', value: '${summary.sleepHours.toStringAsFixed(1)} h', icon: Icons.bedtime, color: const Color(0xFF7C3AED)),
+            MetricCard(label: 'Water', value: '${summary.waterLiters.toStringAsFixed(1)} L', icon: Icons.water_drop, color: const Color(0xFF0891B2)),
+            MetricCard(label: 'Exercise', value: '${summary.exerciseMinutes.toStringAsFixed(0)} min', icon: Icons.fitness_center, color: const Color(0xFF16A34A)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Primary manual logs'),
         for (final entry in entries)
           Card(
             child: ListTile(
               leading: const CircleAvatar(child: Icon(Icons.monitor_heart)),
               title: Text(_healthMetricLabel(entry.type)),
-              subtitle: Text('Manual seed entry'),
+              subtitle: Text('Manual entry now • Sync adapter later'),
               trailing: Text('${entry.value.toStringAsFixed(entry.value.truncateToDouble() == entry.value ? 0 : 1)} ${entry.unit}'),
             ),
           ),
+        const SectionHeader(title: 'Secondary metrics'),
+        const FeatureTile(title: 'Heart Rate', description: 'Coming with permission-based health sync', icon: Icons.favorite, comingSoon: true),
+        const FeatureTile(title: 'Blood Pressure', description: 'Coming with manual logs and supported devices', icon: Icons.bloodtype, comingSoon: true),
+        const FeatureTile(title: 'Blood Sugar', description: 'Coming with manual logs and supported devices', icon: Icons.monitor_heart, comingSoon: true),
+        const FeatureTile(title: 'Calories, distance, active minutes and BMI', description: 'Coming after primary health metrics are stable', icon: Icons.insights, comingSoon: true),
       ],
     );
   }
@@ -417,37 +468,48 @@ class MoreScreen extends StatelessWidget {
   const MoreScreen({
     super.key,
     required this.prayerRecords,
+    required this.onTogglePrayer,
     required this.notes,
     required this.reviews,
   });
 
   final List<PrayerRecord> prayerRecords;
+  final void Function(PrayerRecord prayer, bool? completed) onTogglePrayer;
   final List<LifeNote> notes;
   final List<DailyReview> reviews;
 
   @override
   Widget build(BuildContext context) {
-    final completedPrayers = prayerRecords.where((prayer) => prayer.completed).length;
+    final progress = calculatePrayerProgress(prayerRecords);
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        SectionHeader(title: 'More', action: '$completedPrayers / 5 prayers'),
+        SectionHeader(title: 'Prayer', action: '${progress.label} prayers'),
         const SizedBox(height: 8),
+        LinearProgressIndicator(value: progress.ratio),
+        const SizedBox(height: 12),
+        for (final prayer in prayerRecords)
+          Card(
+            child: CheckboxListTile(
+              value: prayer.completed,
+              onChanged: (value) => onTogglePrayer(prayer, value),
+              title: Text(prayer.name),
+              subtitle: Text(prayer.timeLabel),
+              secondary: const Icon(Icons.mosque),
+            ),
+          ),
+        const SectionHeader(title: 'Prayer tools'),
         const FeatureTile(
           title: 'Prayer calculation settings',
-          description: 'Multiple methods, location, Asr option and manual adjustments',
+          description: 'Multiple methods, automatic/manual location, Asr option, timezone and manual adjustments',
           icon: Icons.settings,
           comingSoon: true,
         ),
-        for (final prayer in prayerRecords)
-          Card(
-            child: ListTile(
-              leading: Icon(prayer.completed ? Icons.check_circle : Icons.radio_button_unchecked),
-              title: Text(prayer.name),
-              subtitle: Text(prayer.timeLabel),
-            ),
-          ),
+        const FeatureTile(title: 'Reminder settings', description: 'Per-prayer reminders and quiet-time controls', icon: Icons.notifications_active, comingSoon: true),
+        const FeatureTile(title: 'Quran tracking', description: 'Pages, verses and sessions', icon: Icons.menu_book, comingSoon: true),
+        const FeatureTile(title: 'Dhikr and dua', description: 'Daily counters and saved duas', icon: Icons.favorite, comingSoon: true),
+        const FeatureTile(title: 'Ramadan and charity', description: 'Fasting, charity and Ramadan goals', icon: Icons.volunteer_activism, comingSoon: true),
         const SizedBox(height: 20),
         const SectionHeader(title: 'Notes and reviews'),
         for (final note in notes) FeatureTile(title: note.title, description: note.body, icon: Icons.edit_note),
@@ -619,6 +681,28 @@ String _taskAreaLabel(TaskArea area) {
       return 'Evening Review';
     case TaskArea.tomorrow:
       return 'Tomorrow Planning';
+  }
+}
+
+IconData _financeIcon(FinanceType type) {
+  switch (type) {
+    case FinanceType.income:
+      return Icons.south_west;
+    case FinanceType.expense:
+      return Icons.north_east;
+    case FinanceType.bill:
+      return Icons.receipt_long;
+  }
+}
+
+String _financeTypeLabel(FinanceType type) {
+  switch (type) {
+    case FinanceType.income:
+      return 'Income';
+    case FinanceType.expense:
+      return 'Expense';
+    case FinanceType.bill:
+      return 'Pending bill';
   }
 }
 
