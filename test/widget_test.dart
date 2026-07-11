@@ -102,4 +102,36 @@ void main() {
     expect(find.text('Blood Pressure'), findsOneWidget);
   });
 
+
+  testWidgets('Dashboard renders offline reports and local suggestions', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    expect(find.text('Offline reports'), findsOneWidget);
+    expect(find.text('Daily closing report'), findsOneWidget);
+    expect(find.text('Weekly review'), findsOneWidget);
+    expect(find.text('Monthly review'), findsOneWidget);
+    expect(find.text('Local suggestions'), findsOneWidget);
+    expect(find.text('No online AI'), findsOneWidget);
+  });
+
+  testWidgets('More tab renders optional sync, privacy and secure feature flags', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Backup and sync'), findsOneWidget);
+    expect(find.text('Optional Google login'), findsOneWidget);
+    expect(find.text('Signed out by default'), findsOneWidget);
+    expect(find.text('Firebase sync ready'), findsOneWidget);
+    expect(find.text('Conflict handling'), findsOneWidget);
+    expect(find.text('Privacy settings'), findsOneWidget);
+    expect(find.text('Secure future modules'), findsOneWidget);
+    expect(find.text('Password vault'), findsOneWidget);
+    expect(find.text('ID documents'), findsOneWidget);
+    expect(find.text('SMS parsing'), findsOneWidget);
+    expect(find.text('Location history'), findsOneWidget);
+    expect(find.text('Online AI assistant'), findsOneWidget);
+  });
+
 }

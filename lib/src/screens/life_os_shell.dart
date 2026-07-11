@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../data/life_repository.dart';
 import '../models/life_models.dart';
 import '../services/life_calculations.dart';
+import '../services/life_reports.dart';
+import '../services/sync_config.dart';
 import '../widgets/life_widgets.dart';
 
 class LifeOsShell extends StatefulWidget {
@@ -186,6 +188,24 @@ class DashboardScreen extends StatelessWidget {
     final completedPrayers = prayerRecords.where((prayer) => prayer.completed).length;
     final income = financeEntries.where((entry) => entry.type == FinanceType.income).fold<double>(0, (sum, entry) => sum + entry.amountInr);
     final expense = financeEntries.where((entry) => entry.type == FinanceType.expense).fold<double>(0, (sum, entry) => sum + entry.amountInr);
+    final dailyReport = buildDailyClosingReport(
+      tasks: tasks,
+      habits: habits,
+      financeEntries: financeEntries,
+      healthEntries: healthEntries,
+      prayerRecords: prayerRecords,
+    );
+    final weeklyReview = buildWeeklyReview(
+      tasks: tasks,
+      habits: habits,
+      financeEntries: financeEntries,
+      prayerRecords: prayerRecords,
+    );
+    final monthlyReview = buildMonthlyReview(
+      goals: goals,
+      financeEntries: financeEntries,
+      habits: habits,
+    );
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -230,6 +250,20 @@ class DashboardScreen extends StatelessWidget {
           icon: Icons.favorite,
           onTap: () => onOpenTab(4),
         ),
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Offline reports'),
+        _ReportCard(report: dailyReport),
+        _ReportCard(report: weeklyReview),
+        _ReportCard(report: monthlyReview),
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Local suggestions', action: 'No online AI'),
+        for (final suggestion in dailyReport.suggestions)
+          Card(
+            child: ListTile(
+              leading: const CircleAvatar(child: Icon(Icons.lightbulb_outline)),
+              title: Text(suggestion),
+            ),
+          ),
         if (reviews.isNotEmpty)
           Card(
             child: ListTile(
@@ -514,6 +548,86 @@ class MoreScreen extends StatelessWidget {
         const SectionHeader(title: 'Notes and reviews'),
         for (final note in notes) FeatureTile(title: note.title, description: note.body, icon: Icons.edit_note),
         for (final review in reviews) FeatureTile(title: 'Daily Review', description: review.tomorrowPlan, icon: Icons.rate_review),
+        const SizedBox(height: 20),
+        const SyncAndPrivacySection(),
+        const SizedBox(height: 20),
+        const AdvancedFeatureFlagsSection(),
+      ],
+    );
+  }
+}
+
+
+class _ReportCard extends StatelessWidget {
+  const _ReportCard({required this.report});
+
+  final LifeReport report;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: const CircleAvatar(child: Icon(Icons.summarize)),
+        title: Text(report.title),
+        subtitle: Text(report.summary),
+      ),
+    );
+  }
+}
+
+class SyncAndPrivacySection extends StatelessWidget {
+  const SyncAndPrivacySection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const syncStatus = defaultSyncStatus;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionHeader(title: 'Backup and sync', action: 'Optional Google login'),
+        FeatureTile(
+          title: 'Signed out by default',
+          description: syncStatus.isSignedIn ? 'Google login connected' : 'Use the app locally without forced login',
+          icon: Icons.login,
+        ),
+        FeatureTile(
+          title: 'Firebase sync ready',
+          description: 'Local-first backup across devices with export/import and conflict review planned',
+          icon: Icons.cloud_sync,
+        ),
+        FeatureTile(
+          title: 'Conflict handling',
+          description: 'If two devices change the same item, the app will ask before overwriting data',
+          icon: Icons.compare_arrows,
+          comingSoon: true,
+        ),
+        FeatureTile(
+          title: 'Privacy settings',
+          description: 'Export, import, delete account data and review sync status from one place',
+          icon: Icons.privacy_tip,
+          comingSoon: true,
+        ),
+      ],
+    );
+  }
+}
+
+class AdvancedFeatureFlagsSection extends StatelessWidget {
+  const AdvancedFeatureFlagsSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionHeader(title: 'Secure future modules', action: 'Disabled'),
+        for (final feature in futureAdvancedFeatures)
+          FeatureTile(
+            title: feature.title,
+            description: feature.requirement,
+            icon: Icons.lock,
+            comingSoon: !feature.enabled,
+          ),
       ],
     );
   }

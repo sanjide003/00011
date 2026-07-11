@@ -65,6 +65,9 @@ The target product is a personal Life Operating System: a private Android-first 
 - Update 4 completed: personal INR finance MVP with bank/UPI, bills, cash flow, monthly summary, and basic reports.
 - Update 5 completed: prayer module with five prayers, completion tracking, progress summary, and placeholders for settings, Quran, dhikr, dua, Ramadan, and charity.
 - Update 6 completed: health dashboard with priority manual metrics and a permission-first Health Connect / Google Fit boundary.
+- Update 7 completed: daily, weekly, and monthly reports with offline rule-based local suggestions.
+- Update 8 completed: optional Google login and Firebase-sync-ready architecture UI with local-first default, export/import, conflict handling, and privacy settings placeholders.
+- Update 9 completed: secure future modules behind disabled feature flags with encryption/biometric requirements and offline summaries kept active.
 
 ## Recommended update roadmap
 
