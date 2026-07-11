@@ -70,6 +70,8 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 9 completed: Firebase-ready optional Google login state and signed-out local-first UI; no forced login.
 - Update 10 completed: Firebase sync adapter boundary with sync status, queued-write status, conflict strategy, export/import and privacy controls.
 - Update 11 completed: CRUD actions for enabled modules including finance, health, goals, notes, and daily reviews while advanced/sensitive modules remain disabled.
+- Update 12 completed: local notification permission boundary, reminder preferences, safe defaults, and scheduling logic for tasks, habits, prayers, bills, and daily closing reports.
+- Update 13 completed: Health Connect / Google Fit consent boundary with permission states and allowed-read support for steps, sleep, exercise, and weight.
 - App identity update completed: project/package references standardized to `livelife`, visible app name set to `Livelife`, Android package set to `com.dsd003.life`, and Firebase Android config added.
 
 ## Completed update log
@@ -87,29 +89,11 @@ Livelife is a personal Life Operating System: a private Android-first command ce
 - Update 9: Firebase Android/auth foundation UI with optional Google login state and signed-out local-first default.
 - Update 10: sync adapter boundary with local-source-of-truth copy, queued status, conflict strategy, export/import hooks, and privacy controls.
 - Update 11: expanded CRUD actions for finance, health, goals, notes, and daily reviews; Business and sensitive modules remain out of the enabled first version.
+- Update 12: Android notification permission handling, reminder settings UI, safe off-by-default preferences, and local scheduling logic.
+- Update 13: explicit-consent Health Connect / Google Fit integration boundary with denied, unavailable, partial, and connected states.
 - App identity: renamed app/package references to Livelife/livelife and aligned Android `applicationId` / namespace with Firebase package `com.dsd003.life`.
 
 ## Next implementation roadmap
-
-### Next Update 12: Notifications and reminders
-
-Goal: make the app remind the user about daily life actions.
-
-Full prompt:
-
-```text
-Build Update 12 for the Flutter Livelife app. Add local notifications and reminder scheduling for tasks, habits, prayers, bills, and daily closing reports. Implement Android notification permission handling, reminder settings UI, and safe defaults. Store reminder preferences locally and keep notifications disabled until the user grants permission. Add tests for reminder preference logic and permission-state UI.
-```
-
-### Next Update 13: Real Health Connect / Google Fit integration
-
-Goal: replace health placeholders with permission-based Android health data integration.
-
-Full prompt:
-
-```text
-Build Update 13 for the Flutter Livelife app. Implement real Android Health Connect / Google Fit integration with explicit user consent. Add permission explanation screens, permission request flow, and read support for steps, sleep duration, exercise/workout, and weight where available. Keep water intake, mood, and medicine tracking manual-first. Handle denied permissions, unavailable Health Connect/Google Fit, and partial permissions. Add tests for permission states and health summary updates.
-```
 
 ### Next Update 14: Prayer calculation engine
 
@@ -133,7 +117,7 @@ Build Update 15 for the Flutter Livelife app. Add the final custom logo assets i
 
 ## What is still needed from the owner
 
-No blocking owner decision is needed for the next Real local persistence update. Before branding can be completed, the owner should provide:
+No blocking owner decision is needed for the next prayer calculation update. Before branding can be completed, the owner should provide:
 
 - Final logo image files matching the required asset specification.
 - Exact visual logo design approval before launcher icon and splash screen generation.

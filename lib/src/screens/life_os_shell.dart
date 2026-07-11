@@ -4,8 +4,10 @@ import '../data/life_repository.dart';
 import '../models/life_models.dart';
 import '../services/finance_calculations.dart';
 import '../services/health_calculations.dart';
+import '../services/health_integration_services.dart';
 import '../services/life_reports.dart';
 import '../services/prayer_calculations.dart';
+import '../services/reminder_services.dart';
 import '../services/sync_services.dart';
 import '../widgets/life_widgets.dart';
 
@@ -31,6 +33,8 @@ class _LifeOsShellState extends State<LifeOsShell> {
   AuthState _authState = const AuthState.signedOut();
   SyncState _syncState = const SyncState.localOnly();
   PrivacySettings _privacySettings = const PrivacySettings(firebaseBackupEnabled: false, exportEnabled: true, importEnabled: true);
+  ReminderSettings _reminderSettings = const ReminderScheduler().defaultSettings();
+  HealthIntegrationState _healthIntegrationState = const HealthIntegrationState.notConnected();
 
   void _refresh() {
     setState(() {
@@ -98,6 +102,39 @@ class _LifeOsShellState extends State<LifeOsShell> {
     });
   }
 
+  void _grantNotificationPermission() {
+    setState(() => _reminderSettings = const ReminderScheduler().requestAndroidPermission(_reminderSettings, userGranted: true));
+  }
+
+  void _denyNotificationPermission() {
+    setState(() => _reminderSettings = const ReminderScheduler().requestAndroidPermission(_reminderSettings, userGranted: false));
+  }
+
+  void _toggleReminder(String id, bool enabled) {
+    setState(() => _reminderSettings = const ReminderScheduler().setPreferenceEnabled(_reminderSettings, id, enabled));
+  }
+
+  void _connectHealthIntegration() {
+    final boundary = const HealthIntegrationBoundary();
+    final state = boundary.requestPermissions(
+      available: true,
+      grantedTypes: const [HealthDataType.steps, HealthDataType.sleep, HealthDataType.exercise, HealthDataType.weight],
+    );
+    for (final entry in boundary.readAllowedSampleData(state, DateTime.now())) {
+      widget.repository.updateHealthEntry(entry);
+    }
+    setState(() {
+      _healthIntegrationState = state;
+      _healthEntries = widget.repository.getHealthEntries();
+    });
+  }
+
+  void _denyHealthIntegration() {
+    setState(() {
+      _healthIntegrationState = const HealthIntegrationBoundary().requestPermissions(available: true, grantedTypes: const []);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = [
@@ -134,6 +171,9 @@ class _LifeOsShellState extends State<LifeOsShell> {
       ),
       HealthScreen(
         entries: _healthEntries,
+        integrationState: _healthIntegrationState,
+        onConnectHealth: _connectHealthIntegration,
+        onDenyHealth: _denyHealthIntegration,
         onAddEntry: (entry) {
           widget.repository.addHealthEntry(entry);
           _refresh();
@@ -151,6 +191,10 @@ class _LifeOsShellState extends State<LifeOsShell> {
         authState: _authState,
         syncState: _syncState,
         privacySettings: _privacySettings,
+        reminderSettings: _reminderSettings,
+        onGrantNotifications: _grantNotificationPermission,
+        onDenyNotifications: _denyNotificationPermission,
+        onToggleReminder: _toggleReminder,
         onToggleSignIn: _toggleOptionalSignIn,
         onToggleBackup: _toggleFirebaseBackup,
         onAddNote: (note) {
@@ -360,9 +404,12 @@ class FinanceScreen extends StatelessWidget {
 }
 
 class HealthScreen extends StatelessWidget {
-  const HealthScreen({super.key, required this.entries, required this.onAddEntry, required this.onDeleteEntry});
+  const HealthScreen({super.key, required this.entries, required this.integrationState, required this.onConnectHealth, required this.onDenyHealth, required this.onAddEntry, required this.onDeleteEntry});
 
   final List<HealthEntry> entries;
+  final HealthIntegrationState integrationState;
+  final VoidCallback onConnectHealth;
+  final VoidCallback onDenyHealth;
   final ValueChanged<HealthEntry> onAddEntry;
   final ValueChanged<String> onDeleteEntry;
 
@@ -374,7 +421,19 @@ class HealthScreen extends StatelessWidget {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const SectionHeader(title: 'Health', action: 'Manual + Health Connect'), FilledButton.icon(onPressed: () => showHealthEditor(context: context, onSave: onAddEntry), icon: const Icon(Icons.add), label: const Text('Add Health'))]),
         const SizedBox(height: 8),
-        const FeatureTile(title: 'Permission required before sync', description: 'No background tracking starts until you explicitly connect Android Health Connect / Google Fit', icon: Icons.privacy_tip),
+        FeatureTile(
+          title: 'Permission required before sync',
+          description: 'No background tracking starts until you explicitly connect Android Health Connect / Google Fit',
+          icon: Icons.privacy_tip,
+          action: FilledButton(onPressed: onConnectHealth, child: const Text('Connect')),
+        ),
+        FeatureTile(
+          title: integrationState.label,
+          description: integrationState.message,
+          icon: Icons.health_and_safety,
+          action: TextButton(onPressed: onDenyHealth, child: const Text('Deny')),
+        ),
+        const FeatureTile(title: 'Consent boundary', description: 'Steps, sleep, exercise and weight are read only after permission; water, mood and medicine stay manual-first', icon: Icons.verified_user),
         GridView.count(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), crossAxisCount: 2, childAspectRatio: 1.65, crossAxisSpacing: 12, mainAxisSpacing: 12, children: [
           MetricCard(label: 'Steps', value: summary.steps.toStringAsFixed(0), icon: Icons.directions_walk, color: const Color(0xFF2563EB)),
           MetricCard(label: 'Sleep', value: '${summary.sleepHours.toStringAsFixed(1)} h', icon: Icons.bedtime, color: const Color(0xFF7C3AED)),
@@ -395,7 +454,7 @@ class HealthScreen extends StatelessWidget {
 }
 
 class MoreScreen extends StatelessWidget {
-  const MoreScreen({super.key, required this.prayerRecords, required this.onTogglePrayer, required this.notes, required this.reviews, required this.authState, required this.syncState, required this.privacySettings, required this.onToggleSignIn, required this.onToggleBackup, required this.onAddNote, required this.onDeleteNote, required this.onAddReview, required this.onDeleteReview});
+  const MoreScreen({super.key, required this.prayerRecords, required this.onTogglePrayer, required this.notes, required this.reviews, required this.authState, required this.syncState, required this.privacySettings, required this.reminderSettings, required this.onGrantNotifications, required this.onDenyNotifications, required this.onToggleReminder, required this.onToggleSignIn, required this.onToggleBackup, required this.onAddNote, required this.onDeleteNote, required this.onAddReview, required this.onDeleteReview});
 
   final List<PrayerRecord> prayerRecords;
   final void Function(PrayerRecord prayer, bool? completed) onTogglePrayer;
@@ -404,6 +463,10 @@ class MoreScreen extends StatelessWidget {
   final AuthState authState;
   final SyncState syncState;
   final PrivacySettings privacySettings;
+  final ReminderSettings reminderSettings;
+  final VoidCallback onGrantNotifications;
+  final VoidCallback onDenyNotifications;
+  final void Function(String id, bool enabled) onToggleReminder;
   final VoidCallback onToggleSignIn;
   final ValueChanged<bool> onToggleBackup;
   final ValueChanged<LifeNote> onAddNote;
@@ -428,6 +491,24 @@ class MoreScreen extends StatelessWidget {
         const FeatureTile(title: 'Quran tracking', description: 'Pages, verses and sessions', icon: Icons.menu_book, comingSoon: true),
         const FeatureTile(title: 'Dhikr and dua', description: 'Daily counters and saved duas', icon: Icons.favorite, comingSoon: true),
         const FeatureTile(title: 'Ramadan and charity', description: 'Fasting, charity and Ramadan goals', icon: Icons.volunteer_activism, comingSoon: true),
+        const SizedBox(height: 20),
+        SectionHeader(title: 'Reminders', action: reminderSettings.permissionLabel),
+        FeatureTile(
+          title: 'Android notification permission',
+          description: 'Reminders stay disabled until you allow notifications. Safe default: off.',
+          icon: Icons.notifications_active,
+          action: Wrap(spacing: 4, children: [
+            FilledButton(onPressed: onGrantNotifications, child: const Text('Allow')),
+            TextButton(onPressed: onDenyNotifications, child: const Text('Deny')),
+          ]),
+        ),
+        for (final reminder in reminderSettings.preferences)
+          SwitchListTile(
+            value: reminder.enabled && reminderSettings.canSchedule,
+            onChanged: reminderSettings.canSchedule ? (value) => onToggleReminder(reminder.id, value) : null,
+            title: Text(reminder.title),
+            subtitle: Text(reminder.timeLabel),
+          ),
         const SizedBox(height: 20),
         const SectionHeader(title: 'Backup and privacy'),
         FeatureTile(title: authState.label, description: 'Google login is optional. Livelife works without login and keeps local data first.', icon: Icons.account_circle, action: FilledButton(onPressed: onToggleSignIn, child: Text(authState.isSignedIn ? 'Sign Out' : 'Optional Google Login'))),

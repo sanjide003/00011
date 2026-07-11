@@ -144,4 +144,29 @@ void main() {
     expect(find.text('Local-only backup is active'), findsOneWidget);
   });
 
+
+  testWidgets('More tab keeps reminders off until notification permission is granted', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reminders'), findsOneWidget);
+    expect(find.text('Notification permission not requested'), findsOneWidget);
+    expect(find.text('Android notification permission'), findsOneWidget);
+    expect(find.text('Daily closing report'), findsOneWidget);
+  });
+
+  testWidgets('Health tab explains consent before Health Connect sync', (WidgetTester tester) async {
+    await tester.pumpWidget(const LifeOsApp());
+
+    await tester.tap(find.text('Health'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Not connected'), findsOneWidget);
+    expect(find.text('Consent boundary'), findsOneWidget);
+    expect(find.text('Connect'), findsOneWidget);
+    expect(find.text('Steps'), findsWidgets);
+  });
+
 }
