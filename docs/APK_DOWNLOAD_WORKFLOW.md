@@ -29,4 +29,4 @@ The `health` plugin requires Android SDK 26 or newer, so the release build sets 
 
 ## CI formatting behavior
 
-The CI workflow now runs `dart format lib test integration_test` before analysis/tests. This keeps the workflow moving even when generated or newly-added Dart files need formatter changes.
+The CI workflow runs `dart format --set-exit-if-changed lib test integration_test` before analysis/tests. If this step fails, run the same command locally after applying `dart format lib test integration_test`, commit the formatted files, and rerun CI.
