@@ -24,5 +24,7 @@ void main() {
     expect(find.text('Export / Import'), findsOneWidget);
     expect(find.text('Add Note'), findsOneWidget);
     expect(find.text('Add Daily Review'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Firebase backup opt-in'), findsOneWidget);
   });
 }
