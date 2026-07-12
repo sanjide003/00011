@@ -1,4 +1,4 @@
-part of 'life_os_shell.dart';
+part of '../../screens/life_os_shell.dart';
 
 class _HeroCard extends StatelessWidget {
   const _HeroCard();
