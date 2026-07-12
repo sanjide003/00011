@@ -9,6 +9,8 @@ import '../services/life_reports.dart';
 import '../services/prayer_calculations.dart';
 import '../services/reminder_services.dart';
 import '../services/sync_services.dart';
+import '../services/settings/settings_services.dart';
+import '../services/onboarding/onboarding_services.dart';
 import '../widgets/life_widgets.dart';
 
 part 'dashboard_screen.dart';
@@ -20,6 +22,8 @@ part 'more_screen.dart';
 part '../widgets/dashboard/dashboard_cards.dart';
 part 'life_editors.dart';
 part 'prayer_settings_card.dart';
+part 'settings_screen.dart';
+part 'onboarding_screen.dart';
 
 class LifeOsShell extends StatefulWidget {
   const LifeOsShell({super.key, required this.repository});

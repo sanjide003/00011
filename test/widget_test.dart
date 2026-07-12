@@ -190,4 +190,19 @@ void main() {
     }
   });
 
+
+  testWidgets('More tab opens dedicated settings screen', (WidgetTester tester) async {
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile and privacy'), findsOneWidget);
+    expect(find.text('Theme mode'), findsOneWidget);
+    expect(find.text('Health Connect permissions'), findsOneWidget);
+    expect(find.text('Reset local data'), findsOneWidget);
+  });
+
 }

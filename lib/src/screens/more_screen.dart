@@ -60,6 +60,7 @@ class MoreScreen extends StatelessWidget {
           ),
         const SizedBox(height: 20),
         const SectionHeader(title: 'Backup and privacy'),
+        FeatureTile(title: 'Settings', description: 'Profile, backup, notifications, prayer, theme, privacy and reset controls', icon: Icons.settings, onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => SettingsScreen(authState: authState, privacySettings: privacySettings, reminderSettings: reminderSettings, prayerSettings: prayerSettings)))),
         FeatureTile(title: authState.label, description: 'Google login is optional. Livelife works without login and keeps local data first.', icon: Icons.account_circle, action: FilledButton(onPressed: onToggleSignIn, child: Text(authState.isSignedIn ? 'Sign Out' : 'Optional Google Login'))),
         SwitchListTile(value: privacySettings.firebaseBackupEnabled, onChanged: authState.isSignedIn ? onToggleBackup : null, title: const Text('Firebase backup opt-in'), subtitle: Text(syncState.label)),
         FeatureTile(title: 'Export / Import', description: 'Manual local backup files are prepared for privacy-first recovery', icon: Icons.import_export),
