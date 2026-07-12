@@ -34,3 +34,7 @@ See `docs/ANDROID_RELEASE_CHECKLIST.md` for Android signing, release checks, per
 ## Firebase and privacy
 
 See `docs/FIRESTORE_STRUCTURE.md`, `firebase/firestore/firestore.rules`, and `docs/PRIVACY_POLICY_DRAFT.md` for Firestore structure, access control, backup disable flow, data deletion flow, and privacy disclosures.
+
+## Downloading release APKs
+
+The GitHub Actions workflow **Build Release APK** builds split release APKs and uploads an artifact named `Livelife-Release-APKs`. Open Actions, choose the workflow run, and download `Livelife-arm64-v8a.apk` for most Android phones. See `docs/APK_DOWNLOAD_WORKFLOW.md` for full steps.
