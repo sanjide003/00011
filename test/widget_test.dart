@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:livelife/main.dart';
+import 'package:livelife/src/app.dart';
+import 'package:livelife/src/data/life_repository.dart';
 
 void main() {
   testWidgets('Life OS shell renders dashboard and bottom navigation', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     expect(find.text('Livelife'), findsOneWidget);
     expect(find.text('Personal Life Operating System'), findsOneWidget);
@@ -20,7 +21,7 @@ void main() {
   });
 
   testWidgets('Planner supports adding and completing a task', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('Planner'));
     await tester.pumpAndSettle();
@@ -47,7 +48,7 @@ void main() {
   });
 
   testWidgets('Habits tab renders goals and habit controls', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('Habits'));
     await tester.pumpAndSettle();
@@ -59,7 +60,7 @@ void main() {
   });
 
   testWidgets('Finance tab renders INR summary and coming soon finance scope', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('Finance'));
     await tester.pumpAndSettle();
@@ -76,7 +77,7 @@ void main() {
 
 
   testWidgets('More tab renders prayer progress and practice placeholders', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
@@ -97,7 +98,7 @@ void main() {
 
 
   testWidgets('Health tab renders permission boundary and priority metrics', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('Health'));
     await tester.pumpAndSettle();
@@ -120,7 +121,7 @@ void main() {
 
 
   testWidgets('Dashboard renders offline reports and local suggestions', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     expect(find.text('Offline reports'), findsOneWidget);
     expect(find.text('Daily closing report'), findsOneWidget);
@@ -132,7 +133,7 @@ void main() {
 
 
   testWidgets('More tab shows optional Google login and local-first sync status', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
@@ -146,7 +147,7 @@ void main() {
 
 
   testWidgets('More tab keeps reminders off until notification permission is granted', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
@@ -158,7 +159,7 @@ void main() {
   });
 
   testWidgets('Health tab explains consent before Health Connect sync', (WidgetTester tester) async {
-    await tester.pumpWidget(const LifeOsApp());
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
 
     await tester.tap(find.text('Health'));
     await tester.pumpAndSettle();
@@ -167,6 +168,41 @@ void main() {
     expect(find.text('Consent boundary'), findsOneWidget);
     expect(find.text('Connect'), findsOneWidget);
     expect(find.text('Steps'), findsWidgets);
+  });
+
+
+  testWidgets('all bottom navigation tabs render smoke screens', (WidgetTester tester) async {
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
+
+    const expectations = <String, String>{
+    'Dashboard': 'Today at a glance',
+    'Planner': 'Daily Planner',
+    'Habits': 'Habits',
+    'Finance': 'Finance',
+    'Health': 'Health',
+    'More': 'Prayer',
+  };
+
+    for (final entry in expectations.entries) {
+      await tester.tap(find.text(entry.key));
+      await tester.pumpAndSettle();
+      expect(find.text(entry.value), findsWidgets);
+    }
+  });
+
+
+  testWidgets('More tab opens dedicated settings screen', (WidgetTester tester) async {
+    await tester.pumpWidget(LifeOsApp(repository: LocalLifeRepository.seeded()));
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile and privacy'), findsOneWidget);
+    expect(find.text('Theme mode'), findsOneWidget);
+    expect(find.text('Health Connect permissions'), findsOneWidget);
+    expect(find.text('Reset local data'), findsOneWidget);
   });
 
 }
