@@ -28,6 +28,7 @@ class _LifeOsShellState extends State<LifeOsShell> {
   late List<FinanceEntry> _financeEntries = widget.repository.getFinanceEntries();
   late List<HealthEntry> _healthEntries = widget.repository.getHealthEntries();
   late List<PrayerRecord> _prayerRecords = widget.repository.getPrayerRecords();
+  PrayerCalculationSettings _prayerSettings = PrayerCalculationSettings.defaults();
   late List<LifeNote> _notes = widget.repository.getNotes();
   late List<DailyReview> _reviews = widget.repository.getDailyReviews();
   AuthState _authState = const AuthState.signedOut();
@@ -80,6 +81,17 @@ class _LifeOsShellState extends State<LifeOsShell> {
   void _togglePrayer(PrayerRecord prayer, bool? completed) {
     widget.repository.updatePrayerRecord(prayer.copyWith(completed: completed ?? false));
     _refresh();
+  }
+
+  void _updatePrayerSettings(PrayerCalculationSettings settings) {
+    final records = const PrayerTimesEngine().calculateDailyPrayers(date: DateTime.now(), settings: settings, existing: _prayerRecords);
+    for (final record in records) {
+      widget.repository.updatePrayerRecord(record);
+    }
+    setState(() {
+      _prayerSettings = settings;
+      _prayerRecords = widget.repository.getPrayerRecords();
+    });
   }
 
   void _toggleOptionalSignIn() {
@@ -185,7 +197,9 @@ class _LifeOsShellState extends State<LifeOsShell> {
       ),
       MoreScreen(
         prayerRecords: _prayerRecords,
+        prayerSettings: _prayerSettings,
         onTogglePrayer: _togglePrayer,
+        onPrayerSettingsChanged: _updatePrayerSettings,
         notes: _notes,
         reviews: _reviews,
         authState: _authState,
@@ -454,10 +468,12 @@ class HealthScreen extends StatelessWidget {
 }
 
 class MoreScreen extends StatelessWidget {
-  const MoreScreen({super.key, required this.prayerRecords, required this.onTogglePrayer, required this.notes, required this.reviews, required this.authState, required this.syncState, required this.privacySettings, required this.reminderSettings, required this.onGrantNotifications, required this.onDenyNotifications, required this.onToggleReminder, required this.onToggleSignIn, required this.onToggleBackup, required this.onAddNote, required this.onDeleteNote, required this.onAddReview, required this.onDeleteReview});
+  const MoreScreen({super.key, required this.prayerRecords, required this.prayerSettings, required this.onTogglePrayer, required this.onPrayerSettingsChanged, required this.notes, required this.reviews, required this.authState, required this.syncState, required this.privacySettings, required this.reminderSettings, required this.onGrantNotifications, required this.onDenyNotifications, required this.onToggleReminder, required this.onToggleSignIn, required this.onToggleBackup, required this.onAddNote, required this.onDeleteNote, required this.onAddReview, required this.onDeleteReview});
 
   final List<PrayerRecord> prayerRecords;
+  final PrayerCalculationSettings prayerSettings;
   final void Function(PrayerRecord prayer, bool? completed) onTogglePrayer;
+  final ValueChanged<PrayerCalculationSettings> onPrayerSettingsChanged;
   final List<LifeNote> notes;
   final List<DailyReview> reviews;
   final AuthState authState;
@@ -485,8 +501,8 @@ class MoreScreen extends StatelessWidget {
         LinearProgressIndicator(value: progress.ratio),
         const SizedBox(height: 12),
         for (final prayer in prayerRecords) Card(child: CheckboxListTile(value: prayer.completed, onChanged: (value) => onTogglePrayer(prayer, value), title: Text(prayer.name), subtitle: Text(prayer.timeLabel), secondary: const Icon(Icons.mosque))),
-        const SectionHeader(title: 'Prayer tools'),
-        const FeatureTile(title: 'Prayer calculation settings', description: 'Multiple methods, automatic/manual location, Asr option, timezone and manual adjustments', icon: Icons.settings, comingSoon: true),
+        const SectionHeader(title: 'Prayer settings'),
+        PrayerSettingsCard(settings: prayerSettings, onChanged: onPrayerSettingsChanged),
         const FeatureTile(title: 'Reminder settings', description: 'Per-prayer reminders and quiet-time controls', icon: Icons.notifications_active, comingSoon: true),
         const FeatureTile(title: 'Quran tracking', description: 'Pages, verses and sessions', icon: Icons.menu_book, comingSoon: true),
         const FeatureTile(title: 'Dhikr and dua', description: 'Daily counters and saved duas', icon: Icons.favorite, comingSoon: true),
@@ -656,5 +672,80 @@ String _healthUnit(HealthMetricType type) {
       return '/5';
     case HealthMetricType.medicine:
       return 'taken';
+  }
+}
+
+class PrayerSettingsCard extends StatelessWidget {
+  const PrayerSettingsCard({super.key, required this.settings, required this.onChanged});
+
+  final PrayerCalculationSettings settings;
+  final ValueChanged<PrayerCalculationSettings> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.settings),
+              title: const Text('Prayer calculation settings'),
+              subtitle: Text('${settings.methodLabel} • ${settings.asrLabel} Asr • ${settings.location.label}'),
+            ),
+            DropdownButtonFormField<PrayerCalculationMethod>(
+              value: settings.method,
+              decoration: const InputDecoration(labelText: 'Calculation method'),
+              items: PrayerCalculationMethod.values.map((method) {
+                final label = settings.copyWith(method: method).methodLabel;
+                return DropdownMenuItem(value: method, child: Text(label));
+              }).toList(),
+              onChanged: (method) => method == null ? null : onChanged(settings.copyWith(method: method)),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<AsrJuristicMethod>(
+              value: settings.asrJuristicMethod,
+              decoration: const InputDecoration(labelText: 'Asr option'),
+              items: const [
+                DropdownMenuItem(value: AsrJuristicMethod.shafii, child: Text('Shafi\'i')),
+                DropdownMenuItem(value: AsrJuristicMethod.hanafi, child: Text('Hanafi')),
+              ],
+              onChanged: (method) => method == null ? null : onChanged(settings.copyWith(asrJuristicMethod: method)),
+            ),
+            const SizedBox(height: 8),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: settings.locationMode == PrayerLocationMode.automatic,
+              title: const Text('Automatic location-based calculation'),
+              subtitle: Text('Timezone offset: UTC${settings.location.timeZoneOffset.inHours >= 0 ? '+' : ''}${settings.location.timeZoneOffset.inHours} with daylight handling from the device'),
+              onChanged: (automatic) => onChanged(settings.copyWith(locationMode: automatic ? PrayerLocationMode.automatic : PrayerLocationMode.manual)),
+            ),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              OutlinedButton(onPressed: () => onChanged(settings.copyWith(location: const PrayerLocation(label: 'New York, United States', latitude: 40.7128, longitude: -74.0060, timeZoneOffset: Duration(hours: -4)), locationMode: PrayerLocationMode.manual)), child: const Text('New York')),
+              OutlinedButton(onPressed: () => onChanged(settings.copyWith(location: const PrayerLocation(label: 'Makkah, Saudi Arabia', latitude: 21.3891, longitude: 39.8579, timeZoneOffset: Duration(hours: 3)), locationMode: PrayerLocationMode.manual)), child: const Text('Makkah')),
+              OutlinedButton(onPressed: () => onChanged(settings.copyWith(location: const PrayerLocation(label: 'London, United Kingdom', latitude: 51.5072, longitude: -0.1276, timeZoneOffset: Duration(hours: 1)), locationMode: PrayerLocationMode.manual)), child: const Text('London')),
+            ]),
+            const SizedBox(height: 8),
+            const Text('Manual prayer time adjustment'),
+            Wrap(spacing: 8, children: ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map((id) {
+              final value = settings.manualAdjustments[id] ?? 0;
+              return InputChip(
+                label: Text('${id[0].toUpperCase()}${id.substring(1)} ${value >= 0 ? '+' : ''}$value min'),
+                onPressed: () {
+                  final next = Map<String, int>.from(settings.manualAdjustments)..[id] = value + 1;
+                  onChanged(settings.copyWith(manualAdjustments: next));
+                },
+                onDeleted: value == 0 ? null : () {
+                  final next = Map<String, int>.from(settings.manualAdjustments)..[id] = 0;
+                  onChanged(settings.copyWith(manualAdjustments: next));
+                },
+              );
+            }).toList()),
+          ],
+        ),
+      ),
+    );
   }
 }

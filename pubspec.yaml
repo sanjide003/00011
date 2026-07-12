@@ -25,6 +25,10 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/icon.png"
+  # Run `python3 tool/generate_logo_assets.py` before store packaging to
+  # materialize the final PNG/ICO logo package from assets/app_logo.svg.
+  adaptive_icon_foreground: "assets/icon.png"
+  adaptive_icon_background: "#0F766E"
 
 flutter:
   uses-material-design: true
