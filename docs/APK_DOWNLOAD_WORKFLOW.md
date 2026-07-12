@@ -23,6 +23,10 @@ The same APKs are also uploaded to the GitHub Release created by the workflow.
 
 `flutter_local_notifications` requires Android core library desugaring. The app enables `isCoreLibraryDesugaringEnabled = true` and adds `com.android.tools:desugar_jdk_libs` in `android/app/build.gradle.kts`.
 
+## Android minimum SDK
+
+The `health` plugin requires Android SDK 26 or newer, so the release build sets `minSdk = maxOf(26, flutter.minSdkVersion)` in `android/app/build.gradle.kts`. This avoids manifest merger failures during `flutter build apk --release --split-per-abi`.
+
 ## CI formatting behavior
 
 The CI workflow now runs `dart format lib test integration_test` before analysis/tests. This keeps the workflow moving even when generated or newly-added Dart files need formatter changes.
